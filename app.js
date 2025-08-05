@@ -32,23 +32,43 @@ const initializeDBAndServer = async () => {
 initializeDBAndServer()
 
 app.post('/register/', async (request, response) => {
+  console.log('Registration request received:', request.body)
   const {username, password, name, gender} = request.body
-  const hashedPassword = await bcrypt.hash(request.body.password, 10)
-  const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`
-  const dbUser = await db.get(selectUserQuery)
-  if (dbUser === undefined) {
-    if (password.length < 6) {
-      response.status(400)
-      response.send('Password is too short')
-    } else {
-      const createUserQuery = `INSERT INTO user (username, name, password, gender) 
-            VALUES ('${username}', '${name}', '${hashedPassword}', '${gender}')`
-      const dbResponse = await db.run(createUserQuery)
-      response.send('User created successfully')
-    }
-  } else {
+  
+  // Validate required fields
+  if (!username || !password || !name || !gender) {
+    console.log('Missing required fields')
     response.status(400)
-    response.send('User already exists')
+    response.send('All fields are required')
+    return
+  }
+  
+  try {
+    const hashedPassword = await bcrypt.hash(request.body.password, 10)
+    const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`
+    const dbUser = await db.get(selectUserQuery)
+    
+    if (dbUser === undefined) {
+      if (password.length < 6) {
+        console.log('Password too short')
+        response.status(400)
+        response.send('Password is too short')
+      } else {
+        const createUserQuery = `INSERT INTO user (username, name, password, gender) 
+            VALUES ('${username}', '${name}', '${hashedPassword}', '${gender}')`
+        const dbResponse = await db.run(createUserQuery)
+        console.log('User created successfully:', username)
+        response.send('User created successfully')
+      }
+    } else {
+      console.log('User already exists:', username)
+      response.status(400)
+      response.send('User already exists')
+    }
+  } catch (error) {
+    console.error('Registration error:', error)
+    response.status(500)
+    response.send('Internal server error')
   }
 })
 
