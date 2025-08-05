@@ -38,8 +38,8 @@ app.post('/register/', async (request, response) => {
       response.status(400)
       response.send('Password is too short')
     } else {
-      const createUserQuery = `INSERT INTO user (username, name, password, name, gender) 
-            VALUES ('${username}', '${name}', '${hashedPassword}', '${name}', '${gender}')`
+      const createUserQuery = `INSERT INTO user (username, name, password, gender) 
+            VALUES ('${username}', '${name}', '${hashedPassword}', '${gender}')`
       const dbResponse = await db.run(createUserQuery)
       response.send('User created successfully')
     }
