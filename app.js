@@ -4,8 +4,11 @@ const {open} = require('sqlite')
 const sqlite3 = require('sqlite3')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 const app = express()
 
+// Enable CORS for all routes
+app.use(cors())
 app.use(express.json())
 
 let db = null
